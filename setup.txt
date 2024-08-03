@@ -1,0 +1,31 @@
+python3 -m venv venv
+source venv/bin/activate
+
+npm install -g create-react-app
+npx create-react-app app
+
+npm i (After install react react-dom)
+
+npm install @mediapipe/tasks-vision
+
+npm install --save gh-pages
+In package.json:
+
+"homepage": "https://kgates-github.github.io/gestures_IV"
+
+"scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+}
+
+npm run deploy
+
+
+
+
+APENDIX
+

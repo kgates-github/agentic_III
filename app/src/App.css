@@ -1,0 +1,253 @@
+
+/* WIKIPEDIA CSS OVERRIDES */
+.mw-content-ltr {
+  padding-right:40px !important;
+}
+
+/* D3 CSS */
+.edge {
+  stroke: #ccc;
+  stroke-width: 1px;
+}
+
+
+
+caption {
+  display: table-caption;
+  text-align: left !important;
+  unicode-bidi: isolate;
+}
+
+a:link {
+  color: #0360f7;
+  text-decoration: underline;
+}
+
+/* Visited link */
+a:visited {
+  color: #0360f7;
+  text-decoration: underline;
+}
+
+/* Mouse over link */
+a:hover {
+  color: #0360f7;
+  text-decoration: underline;
+}
+
+/* Selected link */
+a:active {
+  color: #0360f7;
+  text-decoration: underline;
+}
+
+a.activated {
+  color: #000;
+  background-color: #e3e3e3;
+  text-decoration: none;
+}
+
+a.highlighted {
+  color: #000;
+  /*font-weight:900;*/
+  background-color: rgb(255, 242, 0);
+  text-decoration: none;
+}
+a.triggered {
+  color: #000;
+  /*font-weight:900;*/
+  background-color: #fff200;
+  font-size:16px;
+  text-decoration: underline;
+}
+
+
+
+.header {
+  padding: 8px 10px 0px 10px;
+  width:100%; 
+  background-color: none; 
+  display:flex; 
+  flex-direction: row; 
+  position: absolute; 
+  top: 0px; left: 0px; 
+  z-index: 20000;
+}
+
+.title {
+  background-color: none; 
+  font: 12px 'Source Sans Pro'; 
+  flex:1; display: flex; 
+  flex-direction: row; 
+  justify-content: center; 
+  align-items: center;
+}
+
+.mw-headline {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  color: #333;
+}
+
+.title-header {
+  font-family: 'Roboto', sans-serif;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.0em;
+  color: #444;
+  background:#fff;
+  /*border-bottom : 1px solid #ccc;*/
+  padding-bottom: 20px;
+  margin-top: 20px;
+}
+
+.title-subheader {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.0em;
+  color: #444;
+  background:#fff;
+  /*border-bottom : 1px solid #ccc;*/
+  padding-bottom: 20px;
+  margin-top: 8px;
+  margin-bottom: 20px;
+}
+
+.outerContainer {
+  top:0px; 
+  left:0px; 
+  width:100%; 
+  height:1000px; 
+  background:none;
+  display: flex; 
+  justify-content: center;
+  font-family: "Source Sans Pro", sans-serif;
+  font-size:16px;
+  background-color: none;
+  overflow-y: hidden;
+}
+
+#innerContainer {
+  display:flex; 
+  background:none; 
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: none;
+}
+
+body {
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 14px;
+  color: #444;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  position: fixed; /* Add this line */
+  width: 100%;
+}
+
+#webcamButton {
+  /*border:2px solid #ccc; */
+  width:200px; 
+  height:33px;
+  border-radius:20px;
+  padding-top:2px;
+  padding-bottom:3px;
+  text-align: center;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 10000;
+  color:#fff;
+  background-color: #333;
+}
+
+#loadingContainer {
+  display:flex; 
+  background:none; 
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading {
+  display:flex; 
+  background:none; 
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.annotations {
+  height:52px; 
+}
+
+/* ------------------------------------------- */
+/* Headers and spacers */
+/* ------------------------------------------- */
+
+.header-01 {
+  color:#444; 
+  letter-spacing: 1.1px; 
+  text-transform: uppercase; 
+}
+.header-02 {
+  font-family:'Source Sans Pro', sans-serif; 
+  font-size: 32px; 
+  line-height: 1.03em;
+  font-weight:500;
+}
+.header-03 {
+  color:#222; 
+  font-family:'Source Sans Pro', sans-serif; 
+  font-size: 14px;
+  font-weight:700;
+  text-transform: uppercase;
+  letter-spacing: 1.1px;
+}
+.header-04 {
+  color:#222; 
+  font-family:'Source Sans Pro', sans-serif; 
+  font-size: 14px; 
+  font-weight:600;
+}
+.header-05 {
+  color:#222; 
+  font-family:'Source Sans Pro', sans-serif; 
+  font-size: 14px; 
+  font-weight:500;
+  text-transform: uppercase;
+  margin-right: 20px;
+  margin-left: 20px;
+  height: 40px;
+  line-height: 14px;
+  text-align: center;
+}
+
+.header-06 {
+  color:#666; 
+  font-family:'Source Sans Pro', sans-serif; 
+  font-size: 14px; 
+  font-weight:500;
+}
+
+
+
+.logs {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 11px;
+}
+
+.logs .log {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 11px;
+  line-height: 1.2em;
+  color: #222;
+  padding: 4px;
+  border-bottom: 1px solid #ccc;
+}
+
+

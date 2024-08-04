@@ -89,7 +89,7 @@ function WikipediaExplorer(props) {
             <HistoryViewer navigator={navigator} curIndex={curIndex} tab={tab} />
           </div>
 
-          <CoachTips curIndex={curIndex}/>
+          {/*<CoachTips curIndex={curIndex}/>*/}
           </>
         ) : null }
     </>

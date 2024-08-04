@@ -12,7 +12,7 @@ function SuggestionCard(props) {
   
   return (
     <div  
-      onClick={() => props.navigator.handleLinkClick(props.suggestion.link)}
+      onClick={() => props.navigator.handleLinkClick(props.suggestion.wikiPage)}
       style={{ 
         borderBottom:"1px solid #eee",
         paddingTop:"12px",
@@ -23,20 +23,26 @@ function SuggestionCard(props) {
         overflow: "hidden",
         cursor:"pointer",
         lineHeight:"1.2em",
+        display:"flex",
+        flexDirection:"column",
+        //alignItems:"center",
+        justifyContent:"center",
       }}
     >
-      <div style={{fontWeight:'600', marginBottom:"6px"}}>{props.suggestion.title}</div>
+      <div style={{fontWeight:'600', marginBottom:"6px", justifyContent:"center",}}>
+        {props.suggestion.title}
+      </div>
       <div style={{marginBottom:"6px"}}>{props.suggestion.summary}</div>
-      <div style={{color:"#999"}}>{props.suggestion.wikiPage}</div>
-      {props.suggestion.topics ? props.suggestion.topics.map((topic, index) => (
-        <div>{topic}</div>
-      )) : null}
     </div>
   );
 }
 
 export default SuggestionCard;
 
-
+/*
+{props.suggestion.topics ? props.suggestion.topics.map((topic, index) => (
+        <div>{topic}</div>
+      )) : null}
+*/
 
 

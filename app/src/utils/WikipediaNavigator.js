@@ -15,8 +15,6 @@ class WikipediaNavigator {
     this.width = GLOBAL_WIDTH.current
     this.setPageQueueLength = setPageQueueLength;
     this.openAI = openAI;
-
-    console.log('->> this.openAI -------', this.openAI)
   }
 
   addPageToQueue(wikiPage, moveForward = true) {
@@ -27,22 +25,39 @@ class WikipediaNavigator {
       this.pageQueue = this.pageQueue.slice(0, this.queueIndex + 1);
     }
 
+    const newPageID = `wikipage_${this.count}`;
+    // TO DO: Add placeholder suggestions and next page.
+    // Create promise and when it is ready, update both.
     const newPage = {
       wikiPage: wikiPage,
       prevWikiPage: this.pageQueue[this.queueIndex] ? this.pageQueue[this.queueIndex].wikiPage : null,
       title: wikiPage.replace(/_/g, ' '),
-      id: `wikipage_${this.count}`,
+      id: newPageID,
       doRender: true,
       isCurPage: false,
       url: `https://en.wikipedia.org/wiki/${wikiPage}`,
       api: `https://en.wikipedia.org/w/api.php?action=parse&page=${wikiPage}&prop=text&format=json`,
       summary: 'This is a summary',
-      wordCount: null, // Placeholder until we load content
-      suggestions: new Promise((resolve, reject) => {
-        resolve(this.getSuggestions(wikiPage));
-      }),
+      wordCount: null, 
+      suggestions: null,
     }
 
+    new Promise((resolve, reject) => {
+      resolve(this.getSuggestions(wikiPage));
+    }).then((suggestions) => { 
+      newPage.suggestions = suggestions;
+      console.log('Suggestions are ready:', suggestions);
+
+      // If we have suggestions and we are moving forward, 
+      // add the random suggestion to the queue
+      if (suggestions.length && moveForward) {
+        const randIndex = Math.floor(Math.random() * suggestions.length);
+        const nextWikiPage = suggestions[randIndex].wikiPage.split('/').pop();
+        console.log('------> nextWikiPage', nextWikiPage);
+        this.addPageToQueue(nextWikiPage, false);
+      }
+    });
+    
     this.pageQueue.push(newPage);
 
     // If we only have one page, render it
@@ -92,6 +107,15 @@ class WikipediaNavigator {
     if (this.queueIndex === this.pageQueue.length - 1) return;
     this.queueIndex++;
 
+    const curPage = this.pageQueue[this.queueIndex];
+    if (curPage.suggestions && curPage.suggestions.length) {
+      console.log('==> curPage.suggestions', curPage.suggestions);  
+      const randIndex = Math.floor(Math.random() * curPage.suggestions.length);
+      const nextWikiPage = curPage.suggestions[randIndex].wikiPage.split('/').pop();
+      this.addPageToQueue(nextWikiPage, false);
+    } else {
+      // TO DO: Set interval to check for suggestions
+    }
     this.setCurIndex(this.queueIndex) 
     this.setDoRender(renderNextPage); 
     this.setWikiPages(this.pageQueue);
@@ -141,7 +165,9 @@ class WikipediaNavigator {
   }
 
   handleLinkClick(href) {
+    //console.log('handleLinkClick', href);
     const wikiPage = href.split('/').pop();
+    console.log('handleLinkClick', wikiPage);
     this.addPageToQueue(wikiPage);
   }
 
@@ -160,7 +186,6 @@ class WikipediaNavigator {
 
   getSuggestions = async(wikiPage) => {
     const newWikiSummary = await this.fetchWikiSummary(wikiPage);
-    console.log('->> this.openAI', this.openAI);
 
     if (this.openAI) {
       try {
@@ -173,12 +198,11 @@ class WikipediaNavigator {
             {
               "role": "user", 
               "content": `First, read the following excerpt:\n\n${newWikiSummary}\n\n
-                After that, create a JSON-formatted list of up to 5 links to wikipedia pages that would be good follow-ups to the excerpt. For each wikipedia page, write a summary that links it to the excerpt.\n\n 
-                After that, list up to 5 high-level topics found in the excerpt that could be used to find related wikipedia pages.\n\n
+                After that, create a JSON-formatted list of up to 5 links to wikipedia pages that would be good follow-ups to the excerpt. For each wikipedia page, write a short 30-word summary.\n\n 
                 Return the results as a JSON array. Do not include any additional text or formatting.
                 JSON format: [
-                  {"title": "title1", "wikiPage": "wikiPage1", "summary": "summary1", "topics": ["topic1", "topic2"]}, 
-                  {"title": "title2", "wikiPage": "wikiPage2", "summary": "summary2", "topics": ["topic1", "topic2"]},
+                  {"title": "title1", "wikiPage": "wikiPage1", "summary": "summary1",}, 
+                  {"title": "title2", "wikiPage": "wikiPage2", "summary": "summary2",},
                   ...
                 ]
                 JSON Output:`
@@ -190,7 +214,6 @@ class WikipediaNavigator {
         const message = completion.choices[0].message.content.trim();
         const formattedJSON = JSON.parse(message);
         
-        console.log('-> -> formattedJSON', formattedJSON);
         return formattedJSON;
       } catch (error) {
         console.log("Error parsing JSON: ", error.message);

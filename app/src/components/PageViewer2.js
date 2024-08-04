@@ -16,15 +16,6 @@ function PageViewer(props) {
   const pageViewerRef = useRef(null);
   const [toggleStateRight, setToggleStateRight] = useState(props.openAI ? 'suggestions' : 'preview')
 
-  function handleOpenPalm(e) {
-    console.log('handleOpenPalm');
-    setIsHighlighted(true);
-  }
-
-  function handleNoGesture() {
-    console.log('handleNoGesture');
-    setIsHighlighted(false);
-  }
 
   useEffect(() => {
     // Handler to capture keydown events
@@ -66,21 +57,6 @@ function PageViewer(props) {
     setBackButtonDisabled(props.navigator.getBackButtonDisabled());
     setForwardButtonDisabled(props.navigator.getForwardButtonDisabled());
   }, [props.curIndex, props.pageQueueLength]);
-
-  useEffect(() => {
-    /*if (isHighlighted) {
-      document.addEventListener('open-palm', handleOpenPalm);
-      document.addEventListener('no-gesture', handleNoGesture);
-    } else {
-      document.removeEventListener('open-palm', handleOpenPalm);
-      document.removeEventListener('no-gesture', handleNoGesture);
-    }
-
-    return () => {
-      document.removeEventListener('open-palm', handleOpenPalm);
-      document.removeEventListener('no-gesture', handleNoGesture);
-    }*/
-  }, []);
 
   return (
     <>
@@ -181,7 +157,7 @@ function PageViewer(props) {
               style={{cursor:"pointer", display: "flex", alignItems: "center",}}>
               <i className="material-icons" style={{
                 fontSize:"40px", 
-                color: props.highlightMode == 'highlight' ? "#D5BF00" : "#666",
+                color: props.highlightMode == 'highlight' ? "#666" : "#666",
               }}>
                 {props.highlightMode == 'highlight' ? "toggle_on" : "toggle_off"}
               </i>

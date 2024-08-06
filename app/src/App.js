@@ -13,6 +13,7 @@ function App() {
   const [highlightMode, setHighlightMode] = useState('dormant'); // dormant, highlight
   const [introDisplay, setIntroDisplay] = useState('none');
   const [openAI, setOpenAI] = useState(null);
+  const [noOpenAI, setNoOpenAI] = useState(false);  
   const GLOBAL_WIDTH = useRef(640);
 
   // Set up our custom gesture events
@@ -43,9 +44,11 @@ function App() {
     const openaiApiKey = process.env.REACT_APP_OPENAI_KEY
 
     if (!openaiApiKey) {
-      console.log('process.env.REACT_APP_OPENAI_KEY not found')
+      console.log('process.env.REACT_APP_OPENAI_KEY not found');
+      setNoOpenAI(true);
     } else {
       setOpenAI(new OpenAI({ apiKey: openaiApiKey, dangerouslyAllowBrowser: true }));
+      setNoOpenAI(false);
     }
   }, []);
 
@@ -87,7 +90,7 @@ function App() {
             </div>
           </div>
         </div>
-        {!isLoaded && openAI ? <WikipediaExplorer
+        {!isLoaded && (openAI || noOpenAI) ? <WikipediaExplorer
           subscribe={subscribe} 
           unsubscribe={unsubscribe} 
           highlightMode={highlightMode}

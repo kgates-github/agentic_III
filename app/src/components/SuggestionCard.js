@@ -17,7 +17,7 @@ function SuggestionCard(props) {
         borderBottom:"1px solid #eee",
         paddingTop:"12px",
         paddingBottom:"12px",
-        maxWidth: `400px`,
+        width: `100%`,
         minHeight: props.index == 0 ? '140px' : '34px',
         pointerEvents: "auto",
         overflow: "hidden",
@@ -25,7 +25,6 @@ function SuggestionCard(props) {
         lineHeight:"1.2em",
         display:"flex",
         flexDirection:"column",
-        //alignItems:"center",
         justifyContent:"center",
       }}
     >
@@ -33,6 +32,7 @@ function SuggestionCard(props) {
         {props.suggestion.title}
       </div>
       <div style={{marginBottom:"6px"}}>{props.suggestion.summary}</div>
+      {/*<div style={{marginBottom:"6px", color:"#999"}}>{props.suggestion.topics ? props.suggestion.topics.join(', ') : ''}</div>*/}
     </div>
   );
 }

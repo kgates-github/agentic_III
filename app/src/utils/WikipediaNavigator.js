@@ -2,7 +2,8 @@ class WikipediaNavigator {
   constructor(
     setWikiPages, scroll_x, scrollXControls, 
     setCurIndex, GLOBAL_WIDTH, 
-    setPageQueueLength, openAI) {
+    setPageQueueLength, openAI,
+    setWikiPageSummary) {
     
     this.pageQueue = [];
     this.queueIndex = 0;
@@ -15,9 +16,10 @@ class WikipediaNavigator {
     this.width = GLOBAL_WIDTH.current
     this.setPageQueueLength = setPageQueueLength;
     this.openAI = openAI;
+    this.setWikiPageSummary = setWikiPageSummary;
   }
 
-  addPageToQueue(wikiPage, moveForward = true) {
+  addPageToQueue = async(wikiPage, moveForward = true) => {
     this.count++;
 
     // If we are trying to add a page to the queue that is not the last page in the queue
@@ -37,26 +39,35 @@ class WikipediaNavigator {
       isCurPage: false,
       url: `https://en.wikipedia.org/wiki/${wikiPage}`,
       api: `https://en.wikipedia.org/w/api.php?action=parse&page=${wikiPage}&prop=text&format=json`,
-      summary: 'This is a summary',
+      summary: null,
       wordCount: null, 
       suggestions: null,
     }
 
-    new Promise((resolve, reject) => {
-      resolve(this.getSuggestions(wikiPage));
-    }).then((suggestions) => { 
-      newPage.suggestions = suggestions;
-      console.log('Suggestions are ready:', suggestions);
+    try {
+      newPage.summary = await this.fetchWikiSummary(wikiPage);
+      if (moveForward) this.setWikiPageSummary(newPage.summary);
+    } catch (error) {
+      newPage.summary = error;
+    }
 
-      // If we have suggestions and we are moving forward, 
-      // add the random suggestion to the queue
-      if (suggestions.length && moveForward) {
-        const randIndex = Math.floor(Math.random() * suggestions.length);
-        const nextWikiPage = suggestions[randIndex].wikiPage.split('/').pop();
-        console.log('------> nextWikiPage', nextWikiPage);
-        this.addPageToQueue(nextWikiPage, false);
-      }
-    });
+    if (this.openAI) {
+      new Promise((resolve, reject) => {
+        resolve(this.getSuggestions(wikiPage));
+      }).then((suggestions) => { 
+        newPage.suggestions = suggestions;
+        console.log('Suggestions are ready:', suggestions);
+
+        // If we have suggestions and we are moving forward, 
+        // add the random suggestion to the queue
+        if (suggestions.length && moveForward) {
+          const randIndex = Math.floor(Math.random() * suggestions.length);
+          const nextWikiPage = suggestions[randIndex].wikiPage.split('/').pop();
+          console.log('------> nextWikiPage', nextWikiPage);
+          this.addPageToQueue(nextWikiPage, false);
+        }
+      });
+    }
     
     this.pageQueue.push(newPage);
 
@@ -103,18 +114,45 @@ class WikipediaNavigator {
     });
   }
 
+  setNextPage(curPage) {
+    const randIndex = Math.floor(Math.random() * curPage.suggestions.length);
+    
+    for (const suggestion of curPage.suggestions) {
+      const newWikiPage = suggestion.wikiPage.split('/').pop();
+      const isInQueue = this.pageQueue.some(page => newWikiPage === page.wikiPage);
+
+      if (!isInQueue) {
+        this.addPageToQueue(newWikiPage, false);
+        return;
+      }
+    }
+    this.addPageToQueue('Dymaxion', false);
+  }
+
   moveForward(renderNextPage = true) {
     if (this.queueIndex === this.pageQueue.length - 1) return;
     this.queueIndex++;
-
     const curPage = this.pageQueue[this.queueIndex];
-    if (curPage.suggestions && curPage.suggestions.length) {
-      console.log('==> curPage.suggestions', curPage.suggestions);  
-      const randIndex = Math.floor(Math.random() * curPage.suggestions.length);
-      const nextWikiPage = curPage.suggestions[randIndex].wikiPage.split('/').pop();
-      this.addPageToQueue(nextWikiPage, false);
+    this.setWikiPageSummary(curPage.summary)
+
+    // Load suggestions for the next page. If they are not ready, keep trying.
+    if (curPage && curPage.suggestions && curPage.suggestions.length && this.pageQueue[this.queueIndex+1] === undefined) { 
+      this.setNextPage(curPage);
     } else {
-      // TO DO: Set interval to check for suggestions
+      let tries = 0;
+      let intervalRef;
+
+      intervalRef = setInterval(() => {
+        tries++;
+        
+        if (curPage && curPage.suggestions && curPage.suggestions.length && this.pageQueue[this.queueIndex+1] === undefined) { 
+          this.setNextPage(curPage);
+          clearInterval(intervalRef);
+        } else if (tries >= 20) {
+          clearInterval(intervalRef);
+          console.error('Maximum number of tries reached. Suggestions are still null.');
+        }
+      }, 500); // Check every 100 milliseconds
     }
     this.setCurIndex(this.queueIndex) 
     this.setDoRender(renderNextPage); 
@@ -134,7 +172,9 @@ class WikipediaNavigator {
     if (this.queueIndex <= 0) return;
     this.queueIndex--;
 
-    this.setCurIndex(this.queueIndex) 
+    const curPage = this.pageQueue[this.queueIndex];
+    this.setWikiPageSummary(curPage.summary)
+    this.setCurIndex(this.queueIndex)
     this.setDoRender();
     this.setWikiPages(this.pageQueue);
 
@@ -165,7 +205,6 @@ class WikipediaNavigator {
   }
 
   handleLinkClick(href) {
-    //console.log('handleLinkClick', href);
     const wikiPage = href.split('/').pop();
     console.log('handleLinkClick', wikiPage);
     this.addPageToQueue(wikiPage);
@@ -198,11 +237,13 @@ class WikipediaNavigator {
             {
               "role": "user", 
               "content": `First, read the following excerpt:\n\n${newWikiSummary}\n\n
-                After that, create a JSON-formatted list of up to 5 links to wikipedia pages that would be good follow-ups to the excerpt. For each wikipedia page, write a short 30-word summary.\n\n 
-                Return the results as a JSON array. Do not include any additional text or formatting.
+                After that, create a JSON-formatted list of up to 5 valid links to wikipedia pages that would be good follow-ups to the excerpt. 
+                For each wikipedia page, write a short 25-word summary.\n\n 
+                Return the results as a JSON array. Do not include any additional text or formatting.\n\n 
+                Do not include the current page in the list of suggestions.\n\n
                 JSON format: [
-                  {"title": "title1", "wikiPage": "wikiPage1", "summary": "summary1",}, 
-                  {"title": "title2", "wikiPage": "wikiPage2", "summary": "summary2",},
+                  {"title": "title1", "wikiPage": "wiki_page_1", "summary": "summary1", topics: ["topic1", "topic2", "topic3"]}, 
+                  {"title": "title2", "wikiPage": "wiki_page_2", "summary": "summary2", topics: ["topic1", "topic2", "topic3"]},
                   ...
                 ]
                 JSON Output:`

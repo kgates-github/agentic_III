@@ -15,6 +15,7 @@ function PageViewer(props) {
   const { GLOBAL_WIDTH } = useContext(GlobalContext);
   const pageViewerRef = useRef(null);
   const [toggleStateRight, setToggleStateRight] = useState(props.openAI ? 'suggestions' : 'preview')
+  const [toggleStateLeft, setToggleStateLeft] = useState('summary')
 
 
   useEffect(() => {
@@ -30,15 +31,7 @@ function PageViewer(props) {
         if (!forwardButtonDisabled) {
           props.navigator.moveForward();
         }
-      } /*else if (event.key === 'ArrowUp') {
-        if (pageRef.current) {
-          pageRef.current.scrollTop -= pageRef.current.offsetHeight;
-        }
-      } else if (event.key === 'ArrowDown') {
-        if (pageRef.current) {
-          pageRef.current.scrollTop += pageRef.current.offsetHeight;
-        }
-      }*/ else if (event.key === ' ' || event.keyCode === 32) {
+      } else if (event.key === ' ' || event.keyCode === 32) {
         event.preventDefault(); 
         props.changeHighlightMode();
       }
@@ -125,7 +118,6 @@ function PageViewer(props) {
           <div style={{
             background:"#f1f1f1",
             height:"48px",
-            //borderBottom:"1px solid #ccc",
           }}></div>
         </div>
         <div style={{
@@ -141,7 +133,6 @@ function PageViewer(props) {
             background:"#f6f6f6",
             height:"48px",
             alignItems:"center",
-            //borderBottom:"1px solid #ccc",
             paddingLeft:"20px",
             paddingRight:"20px",
             pointerEvents: "auto", 
@@ -185,11 +176,87 @@ function PageViewer(props) {
           background: "none", 
         }}
       >
-        <div style={{ flex:1, }}></div>
-        <div style={{ width:`${GLOBAL_WIDTH.current}px`, background:"none"}}></div>
-        <div style={{ flex:1, background:"#fff", borderLeft:"1px solid #ccc"}}>
+        <div style={{ flex: 1, display: 'flex', flexDirection:"column", alignItems: 'flex-end', background:"#fff"}}>
           <div style={{ background:"#F9F9F9", height:"48px", }}>
+            {/* Toggle Control */}
+            <div style={{ 
+              display: 'flex', 
+              alignItems: "center", 
+              paddingLeft: "12px", 
+              paddingRight: "12px", 
+              height: "100%",
+              maxWidth: "400px",
+              minWidth: "400px",
+            }}>
+              <button
+                onClick={() => setToggleStateLeft(toggleStateLeft == 'summary' ? 'menu' : 'summary')}
+                style={{
+                  flex:"1",
+                  padding: '6px 20px',
+                  backgroundColor: toggleStateLeft === 'summary' ? '#555' : '#f1f1f1',
+                  color: toggleStateLeft === 'summary' ? '#fff' : '#000',
+                  fontWeight: toggleStateLeft === 'menu' ? '600' : '400',
+                  borderTopLeftRadius:"4px",
+                  borderBottomLeftRadius:"4px",
+                  cursor: 'pointer',
+                  textTransform: "uppercase",
+                  height:"28px",
+                  border:"1px solid #999",
+                  fontSize: "10px",
+                  pointerEvents: "auto",
+                }}
+              >
+                Summary
+              </button>
+              <button
+                onClick={() => setToggleStateLeft(toggleStateLeft == 'summary' ? 'menu' : 'summary')}
+                style={{
+                  flex:"1",
+                  padding: '6px 20px',
+                  backgroundColor: toggleStateLeft === 'menu' ? '#555' : '#f1f1f1',
+                  color: toggleStateLeft === 'menu' ? '#fff' : '#000',
+                  fontWeight: toggleStateLeft === 'summary' ? '600' : '400',
+                  borderTopRightRadius:"4px",
+                  borderBottomRightRadius:"4px",
+                  cursor: 'pointer',
+                  textTransform: "uppercase",
+                  height:"28px",
+                  borderTop:"1px solid #999",
+                  borderRight:"1px solid #999",
+                  borderLeft:"0px solid #555",
+                  borderBottom:"1px solid #999",
+                  fontSize: "10px",
+                  pointerEvents: "auto",
+                }}
+              >
+                Menu
+              </button>
+            </div>
+          </div>
 
+          <div style={{
+            display: (toggleStateLeft == 'summary') ? "block" : "none",
+            maxWidth: "400px",
+            padding: "12px",
+            marginTop: "12px",
+            lineHeight: "1.5em",
+          }}>
+            {props.wikiPageSummary}
+          </div>
+          <div style={{
+            display: (toggleStateLeft == 'menu') ? "block" : "none",
+            maxWidth: "400px",
+            padding: "12px",
+            marginTop: "12px",
+          }}>
+            Menu: Lorem itsum dolor sit amet, consectetur adipiscing elit. Lorem itsum dolor sit amet, consectetur adipiscing elit.
+          </div>
+        </div>
+
+        <div style={{ width:`${GLOBAL_WIDTH.current}px`, background:"none"}}></div>
+        
+        <div style={{ flex:1, backgroundColor: "rgba(255, 255, 255, 0.8)", borderLeft:"1px solid #ccc"}}>
+          <div style={{ background:"#F9F9F9", height:"48px", }}>
             {/* Toggle Control */}
             {props.openAI ? (
             <div style={{ 
@@ -260,6 +327,7 @@ function PageViewer(props) {
           
           <div style={{
             display: (props.openAI && toggleStateRight == 'suggestions') ? "block" : "none",
+            maxWidth: "424px",
           }}>
             <Suggestions 
               highlightMode={props.highlightMode}
@@ -279,7 +347,6 @@ function PageViewer(props) {
               isScrolling={isScrolling}
             /> 
           </div>
-
 
         </div>
       </div>

@@ -13,6 +13,7 @@ function WikipediaExplorer(props) {
   const [tab, setTab] = useState('browse');
   const [navigator, setNavigator] = useState(null);
   const [curIndex, setCurIndex] = useState(null);
+  const [wikiPageSummary, setWikiPageSummary] = useState(null);
   const [pageQueueLength, setPageQueueLength] = useState(0);
   const [wikiPages, setWikiPages] = useState([]);
   const { GLOBAL_WIDTH } = useContext(GlobalContext);
@@ -33,6 +34,7 @@ function WikipediaExplorer(props) {
         GLOBAL_WIDTH,
         setPageQueueLength,
         props.openAI,
+        setWikiPageSummary,
     ));
   }, []);
 
@@ -52,7 +54,7 @@ function WikipediaExplorer(props) {
       Math.floor(Math.random() * randomWikipediaPages.length)
     ];
 
-    navigator.addPageToQueue(randPage.url);
+    navigator.addPageToQueue(randPage.page);
   }, [navigator]);
 
   return (
@@ -74,6 +76,7 @@ function WikipediaExplorer(props) {
               changeHighlightMode={props.changeHighlightMode}
               openAI={props.openAI}
               pageQueueLength={pageQueueLength}
+              wikiPageSummary={wikiPageSummary}
             />
           </div>
 

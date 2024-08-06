@@ -1,74 +1,75 @@
 
 const randomWikipediaPages = [
   {
-    title: "Quantum Mechanics",
-    url: "Quantum_mechanics"
+    "title": "Leonardo da Vinci",
+    "page": "Leonardo_da_Vinci"
   },
   {
-    title: "Renaissance Art",
-    url: "Renaissance_art"
+    "title": "Michelangelo",
+    "page": "Michelangelo"
   },
   {
-    title: "Photosynthesis",
-    url: "Photosynthesis"
+    "title": "Pablo Picasso",
+    "page": "Pablo_Picasso"
   },
   {
-    title: "General Relativity",
-    url: "General_relativity"
+    "title": "Vincent van Gogh",
+    "page": "Vincent_van_Gogh"
   },
   {
-    title: "Ancient Egypt",
-    url: "Ancient_Egypt"
+    "title": "Salvador Dalí",
+    "page": "Salvador_Dalí"
   },
   {
-    title: "Artificial Intelligence",
-    url: "Artificial_intelligence"
+    "title": "Claude Monet",
+    "page": "Claude_Monet"
   },
   {
-    title: "World War II",
-    url: "World_War_II"
+    "title": "Rembrandt",
+    "page": "Rembrandt"
   },
   {
-    title: "Black Hole",
-    url: "Black_hole"
+    "title": "Andy Warhol",
+    "page": "Andy_Warhol"
   },
   {
-    title: "Vincent van Gogh",
-    url: "Vincent_van_Gogh"
+    "title": "Frida Kahlo",
+    "page": "Frida_Kahlo"
   },
   {
-    title: "Maya Civilization",
-    url: "Maya_civilization"
+    "title": "Henri Matisse",
+    "page": "Henri_Matisse"
   },
   {
-    title: "Evolution",
-    url: "Evolution"
+    "title": "Immanuel Kant",
+    "page": "Immanuel_Kant"
   },
   {
-    title: "Mount Everest",
-    url: "Mount_Everest"
+    "title": "Friedrich Nietzsche",
+    "page": "Friedrich_Nietzsche"
   },
   {
-    title: "The Great Gatsby",
-    url: "The_Great_Gatsby"
+    "title": "Jean-Paul Sartre",
+    "page": "Jean-Paul_Sartre"
   },
   {
-    title: "Climate Change",
-    url: "Climate_change"
+    "title": "Simone de Beauvoir",
+    "page": "Simone_de_Beauvoir"
   },
   {
-    title: "Human Genome Project",
-    url: "Human_Genome_Project"
+    "title": "René Descartes",
+    "page": "René_Descartes"
   },
   {
-    title: "Leonardo da Vinci",
-    url: "Leonardo_da_Vinci"
+    "title": "David Hume",
+    "page": "David_Hume"
   },
   {
-    title: "Roman Empire",
-    url: "Roman_Empire"
+    "title": "John Locke",
+    "page": "John_Locke"
   }
-];
+]
+
 
 const testContent = `
   "Da Vinci" redirects here. For other uses, see Da Vinci (disambiguation) and Leonardo da Vinci (disambiguation).

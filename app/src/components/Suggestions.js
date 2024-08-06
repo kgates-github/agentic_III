@@ -7,6 +7,8 @@ function Suggestions(props) {
 
   useEffect(() => {
     setSuggestions([]);
+
+    if (props.openAI === null) return;
     const curPage = props.navigator.getCurPage();
     
     if (curPage && curPage.suggestions) {
@@ -15,11 +17,9 @@ function Suggestions(props) {
       let tries = 0;
       intervalRef.current = setInterval(() => {
         tries++;
-        console.log(`Try ${tries}`);
-  
+        
         if (curPage && curPage.suggestions && curPage.suggestions !== null) {
           clearInterval(intervalRef.current);
-          console.log('!!!! Suggestions found:');
           setSuggestions(curPage.suggestions);
         } else if (tries >= 20) {
           clearInterval(intervalRef.current);
@@ -29,18 +29,18 @@ function Suggestions(props) {
     }
     // Cleanup interval on component unmount
     return () => clearInterval(intervalRef.current);
-}, [props.curIndex]);
+}, [props.curIndex, props.openAI]);
   
   return (
     <div style={{ 
       paddingTop:"20px", 
       paddingLeft:"12px", 
       paddingRight:"12px",
-      maxWidth:"350px", 
+      maxWidth:"424px", 
       minWidth:"300px", 
       overflowY: 'scroll',
     }}>
-      {props.highlightMode == 'highlight' ? suggestions.map((suggestion, index) => (
+      {props.highlightMode == 'highlight' && suggestions.length ? suggestions.map((suggestion, index) => (
         <SuggestionCard 
           key={index} 
           suggestion={suggestion} 

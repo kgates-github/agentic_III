@@ -17,8 +17,9 @@ function Suggestions(props) {
       let tries = 0;
       intervalRef.current = setInterval(() => {
         tries++;
-        
-        if (curPage && curPage.suggestions && curPage.suggestions !== null) {
+        console.log('Trying to get suggestions for next page. Tries:', tries);
+
+        if (curPage && curPage.suggestions && curPage.suggestions.length && curPage.suggestions !== null) {
           clearInterval(intervalRef.current);
           setSuggestions(curPage.suggestions);
         } else if (tries >= 20) {
@@ -33,7 +34,7 @@ function Suggestions(props) {
   
   return (
     <div style={{ 
-      paddingTop:"20px", 
+      paddingTop:"12px", 
       paddingLeft:"12px", 
       paddingRight:"12px",
       maxWidth:"424px", 
@@ -46,7 +47,11 @@ function Suggestions(props) {
           suggestion={suggestion} 
           navigator={props.navigator}
         />
-      )) : null}
+      )) : (
+        <div style={{padding:"12px", color:"#999"}}>
+          Loading...
+        </div>
+      )}
     </div>
   );
 }

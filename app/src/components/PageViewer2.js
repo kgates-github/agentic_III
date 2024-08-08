@@ -174,10 +174,23 @@ function PageViewer(props) {
           height:"calc(100vh - 80px)",
           pointerEvents: "none" ,
           background: "none", 
+          //border:"3px solid red",
         }}
       >
-        <div style={{ flex: 1, display: 'flex', flexDirection:"column", alignItems: 'flex-end', background:"#fff"}}>
-          <div style={{ background:"#F9F9F9", height:"48px", }}>
+        <div style={{ 
+          flex: 1, display: 'flex', 
+          flexDirection:"column", 
+          alignItems: 'flex-end', 
+          background:"white",
+          borderRight:"1px solid #ccc",
+          }}>
+          <div style={{ 
+            background:"#f1f1f1", 
+            height:"48px", 
+            width:"100%",
+            display: 'flex',
+            justifyContent: 'flex-end',
+            }}>
             {/* Toggle Control */}
             <div style={{ 
               display: 'flex', 
@@ -186,7 +199,7 @@ function PageViewer(props) {
               paddingRight: "12px", 
               height: "100%",
               maxWidth: "400px",
-              minWidth: "400px",
+              minWidth: "300px",
             }}>
               <button
                 onClick={() => setToggleStateLeft(toggleStateLeft == 'summary' ? 'menu' : 'summary')}
@@ -229,27 +242,51 @@ function PageViewer(props) {
                   pointerEvents: "auto",
                 }}
               >
-                Menu
+                Contents
               </button>
             </div>
           </div>
 
           <div style={{
             display: (toggleStateLeft == 'summary') ? "block" : "none",
-            maxWidth: "400px",
+            maxWidth: "300px",
+            minWidth: "300px",
             padding: "12px",
             marginTop: "12px",
             lineHeight: "1.5em",
           }}>
-            {props.wikiPageSummary}
+            <div style={{fontStyle: "italic", color:"#999", marginBottom:"6px"}}>
+              {props.wikiPageTitle }: {props.wikiPageDescription}
+            </div> 
+            <div>{props.wikiPageSummary}</div>
           </div>
           <div style={{
             display: (toggleStateLeft == 'menu') ? "block" : "none",
-            maxWidth: "400px",
+            maxWidth: "300px",
+            minWidth: "300px",
+            height:"calc(100vh - 180px)",
             padding: "12px",
-            marginTop: "12px",
+            marginTop: "12 px",
+            overflowY: "scroll",
+            background: "none",
           }}>
-            Menu: Lorem itsum dolor sit amet, consectetur adipiscing elit. Lorem itsum dolor sit amet, consectetur adipiscing elit.
+            {props.wikiPageTableOfContents ? props.wikiPageTableOfContents.map((section, index) => (
+              <div key={index} style={{
+                marginBottom:"8px", 
+                paddingLeft:`${(section.level-1)*12}px`,
+                cursor: "pointer",
+                whiteSpace: "nowrap", 
+                overflow: "hidden", 
+                textOverflow: "ellipsis",
+                //paddingBottom: "1px",
+                //paddingTop: "1px",
+                //marginTop: section.level == 2 ? "12px" : "none",
+                fontWeight: section.level == 2 ? 500 : 400,
+                color: section.level == 2 ? "#000" :"#888",
+              }}>
+                {section.line}
+              </div>
+            )) : null}
           </div>
         </div>
 
@@ -266,7 +303,8 @@ function PageViewer(props) {
               paddingRight: "12px", 
               height: "100%",
               background: "none",
-              maxWidth: "400px",
+              maxWidth: "300px",
+              minWidth: "300px",
             }}>
               <button
                 onClick={() => setToggleStateRight(toggleStateRight == 'suggestions' ? 'preview' : 'suggestions')}
@@ -327,7 +365,8 @@ function PageViewer(props) {
           
           <div style={{
             display: (props.openAI && toggleStateRight == 'suggestions') ? "block" : "none",
-            maxWidth: "424px",
+            maxWidth: "324px",
+            minWidth: "324px",
           }}>
             <Suggestions 
               highlightMode={props.highlightMode}

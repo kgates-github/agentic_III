@@ -14,6 +14,9 @@ function WikipediaExplorer(props) {
   const [navigator, setNavigator] = useState(null);
   const [curIndex, setCurIndex] = useState(null);
   const [wikiPageSummary, setWikiPageSummary] = useState(null);
+  const [wikiPageDescription, setWikiPageDescription] = useState(null);
+  const [wikiPageTitle, setWikiPageTitle] = useState(null);
+  const [wikiPageTableOfContents, setWikiPageTableOfContents] = useState([]); 
   const [pageQueueLength, setPageQueueLength] = useState(0);
   const [wikiPages, setWikiPages] = useState([]);
   const { GLOBAL_WIDTH } = useContext(GlobalContext);
@@ -35,6 +38,9 @@ function WikipediaExplorer(props) {
         setPageQueueLength,
         props.openAI,
         setWikiPageSummary,
+        setWikiPageDescription,
+        setWikiPageTitle,
+        setWikiPageTableOfContents,
     ));
   }, []);
 
@@ -77,6 +83,9 @@ function WikipediaExplorer(props) {
               openAI={props.openAI}
               pageQueueLength={pageQueueLength}
               wikiPageSummary={wikiPageSummary}
+              wikiPageDescription={wikiPageDescription}
+              wikiPageTitle={wikiPageTitle}
+              wikiPageTableOfContents={wikiPageTableOfContents}
             />
           </div>
 

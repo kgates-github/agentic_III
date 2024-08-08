@@ -14,7 +14,7 @@ function SuggestionCard(props) {
     <div  
       onClick={() => props.navigator.handleLinkClick(props.suggestion.wikiPage)}
       style={{ 
-        borderBottom:"1px solid #eee",
+        borderBottom:"1px solid #ccc",
         paddingTop:"12px",
         paddingBottom:"12px",
         width: `100%`,

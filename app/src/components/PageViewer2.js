@@ -177,12 +177,17 @@ function PageViewer(props) {
           //border:"3px solid red",
         }}
       >
+        <div style={{ flex: 1, backgroundColor: "rgba(255, 255, 255, 1)", }}>
+          <div style={{ background:"#f1f1f1", height:"48px", width:"100%", }}></div>
+        </div>
         <div style={{ 
-          flex: 1, display: 'flex', 
+          width: "324px",
+          display: 'flex', 
           flexDirection:"column", 
           alignItems: 'flex-end', 
           background:"white",
           borderRight:"1px solid #ccc",
+          borderLeft:"1px solid #ccc",
           }}>
           <div style={{ 
             background:"#f1f1f1", 
@@ -255,7 +260,7 @@ function PageViewer(props) {
             marginTop: "12px",
             lineHeight: "1.5em",
           }}>
-            <div style={{fontStyle: "italic", color:"#999", marginBottom:"6px"}}>
+            <div style={{fontStyle: "italic", color:"#999", marginBottom:"16px", fontFamily:"roboto", lineHeight:"1.2"}}>
               {props.wikiPageTitle }: {props.wikiPageDescription}
             </div> 
             <div>{props.wikiPageSummary}</div>
@@ -266,23 +271,25 @@ function PageViewer(props) {
             minWidth: "300px",
             height:"calc(100vh - 180px)",
             padding: "12px",
-            marginTop: "12 px",
+            marginTop: "12px",
             overflowY: "scroll",
             background: "none",
           }}>
             {props.wikiPageTableOfContents ? props.wikiPageTableOfContents.map((section, index) => (
               <div key={index} style={{
-                marginBottom:"8px", 
+                marginBottom:"6px", 
                 paddingLeft:`${(section.level-1)*12}px`,
                 cursor: "pointer",
                 whiteSpace: "nowrap", 
                 overflow: "hidden", 
                 textOverflow: "ellipsis",
+                fontFamily:"roboto",
                 //paddingBottom: "1px",
                 //paddingTop: "1px",
                 //marginTop: section.level == 2 ? "12px" : "none",
+                //background: section.level <= 2 ? "#eee" : "#f1f1f1",
                 fontWeight: section.level == 2 ? 500 : 400,
-                color: section.level == 2 ? "#000" :"#888",
+                color: section.level == 2 ? "#000" :"#444",
               }}>
                 {section.line}
               </div>
@@ -292,8 +299,13 @@ function PageViewer(props) {
 
         <div style={{ width:`${GLOBAL_WIDTH.current}px`, background:"none"}}></div>
         
-        <div style={{ flex:1, backgroundColor: "rgba(255, 255, 255, 0.8)", borderLeft:"1px solid #ccc"}}>
-          <div style={{ background:"#F9F9F9", height:"48px", }}>
+        <div style={{ 
+          backgroundColor: "rgba(255, 255, 255, 1)", 
+          borderRight:"1px solid #ccc",
+          //borderLeft:"1px solid #ccc      ",
+          width: "324px" ,
+          }}>
+          <div style={{ background:"#f1f1f1", height:"48px", }}>
             {/* Toggle Control */}
             {props.openAI ? (
             <div style={{ 
@@ -365,8 +377,7 @@ function PageViewer(props) {
           
           <div style={{
             display: (props.openAI && toggleStateRight == 'suggestions') ? "block" : "none",
-            maxWidth: "324px",
-            minWidth: "324px",
+            width: "324px",
           }}>
             <Suggestions 
               highlightMode={props.highlightMode}
@@ -387,6 +398,9 @@ function PageViewer(props) {
             /> 
           </div>
 
+        </div>
+        <div style={{ flex: 1, backgroundColor: "rgba(255, 255, 255, 1)", }}>
+          <div style={{ background:"#f1f1f1", height:"48px", width:"100%", }}></div>
         </div>
       </div>
     </>

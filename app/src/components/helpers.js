@@ -1,6 +1,9 @@
 
 const randomWikipediaPages = [
   {
+    "title": "Artificial Intelligence",
+    "page": "Artificial_intelligence"
+  },{
     "title": "Leonardo da Vinci",
     "page": "Leonardo_da_Vinci"
   },
@@ -12,7 +15,7 @@ const randomWikipediaPages = [
     "title": "Pablo Picasso",
     "page": "Pablo_Picasso"
   },
-  {
+  /*{
     "title": "Vincent van Gogh",
     "page": "Vincent_van_Gogh"
   },
@@ -49,14 +52,6 @@ const randomWikipediaPages = [
     "page": "Friedrich_Nietzsche"
   },
   {
-    "title": "Jean-Paul Sartre",
-    "page": "Jean-Paul_Sartre"
-  },
-  {
-    "title": "Simone de Beauvoir",
-    "page": "Simone_de_Beauvoir"
-  },
-  {
     "title": "René Descartes",
     "page": "René_Descartes"
   },
@@ -67,9 +62,120 @@ const randomWikipediaPages = [
   {
     "title": "John Locke",
     "page": "John_Locke"
-  }
+  },
+  {
+    "title": "Baruch Spinoza",
+    "page": "Baruch_Spinoza"
+  },
+  {
+    "title": "Arthur Schopenhauer",
+    "page": "Arthur_Schopenhauer"
+  },*/
+  {
+    "title": "Georg Wilhelm Friedrich Hegel",
+    "page": "Georg_Wilhelm_Friedrich_Hegel"
+  },
+  {
+    "title": "Karl Marx",
+    "page": "Karl_Marx"
+  },
+  {
+    "title": "Friedrich Engels",
+    "page": "Friedrich_Engels"
+  },
+  {
+    "title": "Søren Kierkegaard",
+    "page": "Søren_Kierkegaard"
+  },
 ]
 
+const subjectAreas = {
+  "History": "Humanities and Social Sciences",
+  "Philosophy": "Humanities and Social Sciences",
+  "Sociology": "Humanities and Social Sciences",
+  "Psychology": "Humanities and Social Sciences",
+  "Political Science": "Humanities and Social Sciences",
+  "Anthropology": "Humanities and Social Sciences",
+  "Linguistics": "Humanities and Social Sciences",
+  "Religious Studies": "Humanities and Social Sciences",
+  "Economics": "Humanities and Social Sciences",
+  "Geography": "Humanities and Social Sciences",
+  
+  "Biology": "Natural Sciences",
+  "Chemistry": "Natural Sciences",
+  "Physics": "Natural Sciences",
+  "Mathematics": "Natural Sciences",
+  "Earth Sciences": "Natural Sciences",
+  "Astronomy": "Natural Sciences",
+  "Ecology": "Natural Sciences",
+
+  "Mechanical Engineering": "Engineering and Technology",
+  "Electrical Engineering": "Engineering and Technology",
+  "Civil Engineering": "Engineering and Technology",
+  "Computer Science": "Engineering and Technology",
+  "Chemical Engineering": "Engineering and Technology",
+  "Aerospace Engineering": "Engineering and Technology",
+  "Biomedical Engineering": "Engineering and Technology",
+
+  "Finance": "Business and Economics",
+  "Accounting": "Business and Economics",
+  "Marketing": "Business and Economics",
+  "Management": "Business and Economics",
+  "Business Administration": "Business and Economics",
+  "Economics": "Business and Economics",
+
+  "Medicine": "Health Sciences",
+  "Nursing": "Health Sciences",
+  "Pharmacy": "Health Sciences",
+  "Public Health": "Health Sciences",
+  "Dentistry": "Health Sciences",
+  "Veterinary Medicine": "Health Sciences",
+
+  "Art and Art History": "Fine Arts",
+  "Music": "Fine Arts",
+  "Theatre and Drama": "Fine Arts",
+  "Dance": "Fine Arts",
+  "Film Studies": "Fine Arts",
+  "Design": "Fine Arts",
+
+  "Curriculum and Instruction": "Education",
+  "Educational Psychology": "Education",
+  "Special Education": "Education",
+  "Educational Leadership": "Education",
+  "Physical Education": "Education",
+
+  "Criminal Law": "Law",
+  "International Law": "Law",
+  "Corporate Law": "Law",
+  "Human Rights Law": "Law",
+
+  "Agronomy": "Agriculture and Environmental Sciences",
+  "Horticulture": "Agriculture and Environmental Sciences",
+  "Environmental Studies": "Agriculture and Environmental Sciences",
+  "Forestry": "Agriculture and Environmental Sciences",
+  "Soil Science": "Agriculture and Environmental Sciences",
+
+  "Journalism": "Communication and Media Studies",
+  "Media Studies": "Communication and Media Studies",
+  "Public Relations": "Communication and Media Studies",
+  "Communication Studies": "Communication and Media Studies",
+
+  "English": "Languages and Literature",
+  "Foreign Languages": "Languages and Literature",
+  "Comparative Literature": "Languages and Literature",
+  "Linguistics": "Languages and Literature",
+  "Creative Writing": "Languages and Literature",
+
+  "Computer Science": "Computer and Information Sciences",
+  "Information Technology": "Computer and Information Sciences",
+  "Cybersecurity": "Computer and Information Sciences",
+  "Data Science": "Computer and Information Sciences",
+
+  "Gender Studies": "Interdisciplinary Studies",
+  "Global Studies": "Interdisciplinary Studies",
+  "Environmental Studies": "Interdisciplinary Studies",
+  "Cultural Studies": "Interdisciplinary Studies"
+}
 
 const testContent = `
   "Da Vinci" redirects here. For other uses, see Da Vinci (disambiguation) and Leonardo da Vinci (disambiguation).
@@ -400,7 +506,33 @@ const testContentSummary = [`
 
 ];
 
-export { randomWikipediaPages, testContent, testContentSummary }
+const stringToColor = (str) => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  let color = '#';
+  for (let i = 0; i < 3; i++) {
+    const value = (hash >> (i * 8)) & 0xFF;
+    color += ('00' + value.toString(16)).substr(-2);
+  }
+  return hexToRgb(color);
+};
+
+function hexToRgb(hex) {
+  // Remove the hash at the start if it's there
+  hex = hex.replace(/^#/, '');
+
+  // Parse the r, g, b values
+  let bigint = parseInt(hex, 16);
+  let r = (bigint >> 16) & 255;
+  let g = (bigint >> 8) & 255;
+  let b = bigint & 255;
+
+  return { r, g, b };
+}
+
+export { randomWikipediaPages, testContent, testContentSummary, subjectAreas, stringToColor }
 
 
 

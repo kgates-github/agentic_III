@@ -17,7 +17,7 @@ function Suggestions(props) {
       let tries = 0;
       intervalRef.current = setInterval(() => {
         tries++;
-        console.log('Trying to get suggestions for next page. Tries:', tries);
+        //console.log('Trying to get suggestions for next page. Tries:', tries);
 
         if (curPage && curPage.suggestions && curPage.suggestions.length && curPage.suggestions !== null) {
           clearInterval(intervalRef.current);
@@ -26,7 +26,7 @@ function Suggestions(props) {
           clearInterval(intervalRef.current);
           console.error('Maximum number of tries reached. Suggestions are still null.');
         }
-      }, 500); // Check every 100 milliseconds
+      }, 500);
     }
     // Cleanup interval on component unmount
     return () => clearInterval(intervalRef.current);

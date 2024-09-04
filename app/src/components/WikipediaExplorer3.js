@@ -1,12 +1,13 @@
-import React, { useEffect, useState, useRef, useContext } from 'react';
+import React, { useMemo, useState, useRef, useContext } from 'react';
 import { useAnimation, motion } from "framer-motion"
 import PageViewer from './PageViewer2';
 import WikipediaNavigator from '../utils/WikipediaNavigator';
 import TabBar from './TabBar';
 import HistoryViewer from './HistoryViewer';
 import CoachTips from './CoachTips';
-import { randomWikipediaPages } from './helpers';
+import { randomWikipediaPages, subjectAreas } from './helpers';
 import { GlobalContext } from './GlobalContext';
+
 
 
 function WikipediaExplorer(props) {
@@ -27,7 +28,7 @@ function WikipediaExplorer(props) {
     setTab(tab);
   }
 
-  useEffect(() => {
+  useMemo(() => {
     setNavigator(
       new WikipediaNavigator(
         setWikiPages, 
@@ -41,10 +42,11 @@ function WikipediaExplorer(props) {
         setWikiPageDescription,
         setWikiPageTitle,
         setWikiPageTableOfContents,
+        subjectAreas,
     ));
   }, []);
 
-  useEffect(() => {
+  useMemo(() => {
     if (!navigator) return;
      // Capture all anchor clicks and prevent default behavior
     document.addEventListener('click', function(event) {
@@ -59,8 +61,10 @@ function WikipediaExplorer(props) {
     const randPage = randomWikipediaPages[
       Math.floor(Math.random() * randomWikipediaPages.length)
     ];
-
-    navigator.addPageToQueue(randPage.page);
+    
+    // navigator.addPageToQueue('Robert_Sapolsky');
+    navigator.addPageToQueue('Leonardo_da_Vinci');
+    // navigator.addPageToQueue(randPage.page);
   }, [navigator]);
 
   return (
@@ -89,7 +93,6 @@ function WikipediaExplorer(props) {
             />
           </div>
 
-
           <div 
             style={{
               display:tab == 'history' ? 'flex' : "none", 
@@ -98,10 +101,10 @@ function WikipediaExplorer(props) {
               marginTop:"20px"
             }}
           >
-            <HistoryViewer navigator={navigator} curIndex={curIndex} tab={tab} />
+            <HistoryViewer navigator={navigator} curIndex={curIndex} tab={tab} openAI={props.openAI}/>
           </div>
 
-          {/*<CoachTips curIndex={curIndex}/>*/}
+          <CoachTips curIndex={curIndex}/>
           </>
         ) : null }
     </>

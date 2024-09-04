@@ -1,75 +1,158 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
+import { stringToColor, subjectAreas } from './helpers';
 import * as d3 from 'd3';
 
 function HistoryViewer(props) {
+  const [subjectAreasByWikiPage, setSubjectAreasByWikiPage] = useState([]);
+  const [height, setHeight] = useState(0);
+  const [dataStack, setDataStack] = useState(null);
+  const svgRef = useRef(null);
 
-  /*
+  const getColor = (subjectArea) => {
+    const rgb = stringToColor(subjectArea);
+    return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5)`;
+  }
+
+  const parseDate = d3.timeFormat("%Y-%m-%d");
+
+  function getDateFromIndex(index) {
+    const baseDate = new Date("2023-01-01");
+    const newDate = new Date(baseDate);
+    newDate.setDate(baseDate.getDate() + index);
+    return parseDate(newDate);
+  }
+
   useEffect(() => {
+    const history = props.navigator.getHistory();
+    const temp = [];
+    let test_set = [];
+    const test_keys = {};
+
+    history.forEach((wikiPage, index) => {
+      const page = {date: getDateFromIndex(index)};
+      if (wikiPage.suggestions) {
+        wikiPage.suggestions.forEach((suggestion) => {
+          let key = suggestion.subjectArea.replace(/ /g, '_');
+          test_keys[key] = 1;
+          if (key in page) {
+            page[key]++;
+          } else {
+            page[key] = 1;
+          }
+        });
+      }
+      test_set.push(page);
+    });
+
+    // Parse dates and fill in missing dates with 0 values
+    const parseDate = d3.timeParse("%Y-%m-%d");
+
+    test_set.forEach(d => {
+      d.date = parseDate(d.date);
+      Object.keys(test_keys).forEach(key => {
+        if (!(key in d)) {
+          d[key] = 0;
+        }
+      });
+    });
+
+    const stackData = d3.stack()
+      .keys(Object.keys(test_keys)) 
+      .order(d3.stackOrderNone) 
+      .offset(d3.stackOffsetWiggle); 
+
+    const svg = d3.select(svgRef.current);
+    svg.selectAll('*').remove(); // Clear previous content
+
+    const margin = { top: 20, right: 0, bottom: 30, left: 0 };
+    const width = window.innerWidth - margin.left - margin.right;
+    const height = 800 - margin.top - margin.bottom;
+
+    const x = d3.scaleTime()
+      .domain(d3.extent(test_set, d => d.date))
+      .range([0, width]);
+
+    const y = d3.scaleLinear()
+      .domain([-8, 8])
+      .range([height, 0]);
     
-    const data = props.navigator.getHistory()
-    console.log('-----???', data)
+    /*
+    d3.scaleOrdinal(d3.schemeCategory10)
+    d3.scaleOrdinal(d3.schemeAccent)
+    d3.scaleOrdinal(d3.schemeDark2)
+    d3.scaleOrdinal(d3.schemePaired)
+    d3.scaleOrdinal(d3.schemePastel1)
+    d3.scaleOrdinal(d3.schemePastel2)
+    d3.scaleOrdinal(d3.schemeSet1)
+    d3.scaleOrdinal(d3.schemeSet2)
+    d3.scaleOrdinal(d3.schemeSet3)
+    */
+    const color = d3.scaleOrdinal(d3.schemePaired)
 
-    if (!data.length) return;
+    const area = d3.area()
+      .curve(d3.curveBasis)
+      .x(d => x(d.data.date))
+      .y0(d => y(d[0]))
+      .y1(d => y(d[1]));
 
-    d3.select("#tree-container").html("");
+    const data = stackData(test_set)
+    console.log('test_set = ', test_set)
+    console.log('data = ', data)
 
-    // Step 1: Convert flat data to hierarchical structure
-    const root = d3.stratify()
-      .id(d => d.nodeId)
-      .parentId(d => d.parentId)
-      (data);
+    //y.domain([0, 5]);
 
-    // Step 2: Set up the SVG container
-    const margin = { top: 20, right: 190, bottom: 30, left: 190 },
-          width = 1960 - margin.left - margin.right,
-          height = 900 - margin.top - margin.bottom;
+    svg.append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    const svg = d3.select("#tree-container").append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .append("g")
-      .attr("transform", "translate("
-            + margin.left + "," + margin.top + ")");
+    svg.selectAll('path')
+      .data(data)
+      .enter().append('path')
+      .attr('d', area)
+      .attr('fill', d => color(d.key));
 
-    // Step 3: Create the tree layout
-    const tree = d3.tree()
-      .size([height, width]);
+    /*svg.append('g')
+      .attr('transform', `translate(${margin.left},${height + margin.top})`)
+      .call(d3.axisBottom(x));
 
-    const treeData = tree(root);
-
-    // Step 4: Draw the links
-    const edge = svg.selectAll(".edge")
-      .data(treeData.links())
-      .enter().append("path")
-      .attr("class", "edge")
-      .style("fill", "none")
-      .attr("d", d3.linkHorizontal()
-        .x(d => d.y)
-        .y(d => d.x));
-
-    // Step 5: Draw the nodes
-    const node = svg.selectAll(".node")
-      .data(treeData.descendants())
-      .enter().append("g")
-      .attr("class", d => "node" + (d.children ? " node--internal" : " node--leaf"))
-      .attr("transform", d => "translate(" + d.y + "," + d.x + ")");
-
-    node.append("circle")
-      .attr("r", 3);
-
-    // Step 6: Add labels
-    node.append("text")
-      .attr("dy", ".35em")
-      .attr("x", d => d.children ? -13 : 13)
-      .style("text-anchor", d => d.children ? "end" : "start")
-      .text(d => d.data.name);
-  }, [props.tab]);*/
+    svg.append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`)
+      .call(d3.axisLeft(y));*/
+  }, [props.tab]);
   
   return (
-    <div style={{width:"100%", marginBottom:"20px", textAlign:"center", background:'none'}}>
-      <div id="tree-container"></div>
-      {props.navigator.getHistory().map((wikiPage, index) => (
-        <div key={"hist_"+index} style={{ marginTop:"16px"}}>{wikiPage.title}</div>
+    <div style={{
+      width:"100%", 
+      marginBottom:"20px", 
+      marginLeft:"0px",  
+      background:'none', 
+      height:"calc(100vh - 150px)",
+      overflowY:"scroll",
+    }}>
+      <div>
+        <svg ref={svgRef} width="1860" height="800" style={{background:"none", filter: "grayscale(100%)"}}></svg>
+      </div>
+      {subjectAreasByWikiPage && subjectAreasByWikiPage.map((wikiPage, index) => (
+        <div style={{display:"flex", flexDirection:"row", marginBottom:"1px"}}>
+        <div style={{fontWeight:400, width:"200px", height:"2px"}}>
+          <div>{wikiPage.title}</div>
+          {/*<div style={{color:"#999", fontSize:"11px"}}>{wikiPage.datetime}</div>*/}
+        </div>
+        {Object.entries(wikiPage.subjectAreas).map(([key, value, index]) => (
+          <div key={index} 
+            style={{
+              width:value*80+"px", 
+              background:stringToColor(key), 
+              background: getColor(key),
+              marginRight:"1px", 
+              overflow:"hidden",
+              height:"24px",
+              padding:"2px",
+              color:"#fff",
+            }}>
+            <span>{key} </span>
+          </div>
+        ))}
+        </div>
       ))}
     </div>
   );
@@ -78,5 +161,28 @@ function HistoryViewer(props) {
 export default HistoryViewer;
 
 
+/*
+    
+    get all topics
+    then get themes for each topic in a look up table
 
+    [
+      { 
+        wikiPage: some_page,
+        summary: 'some summary',
+        id: 'some_id',
+        themes: {
+          'arts': {
+            name: 'Arts',
+            value: 1,
+            suggestions: [
+              { title: 'some title', summary: 'some summary', topics: ['arts', 'painting'] }
+            ]
+          },
+        }
+       
+      }
+    ]
+
+    */
 

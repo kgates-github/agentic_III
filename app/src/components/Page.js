@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef, useContext, } from 'react';
 import LinkHighlighter from './LinkHighlighter';
 import { GlobalContext } from './GlobalContext';
-import { motion } from "framer-motion"
 
 
 function Page(props) {
@@ -83,6 +82,7 @@ function Page(props) {
   useEffect(() => {
     if (props.doRender && (!isRendered() || 
       props.wikiPage.prevWikiPage != props.wikiPage.wikiPage)) {
+      setHTMLConent({ __html: ``});
       
       async function fetchWiki() {
         const newWikiPage = await fetchWikiPage(props.wikiPage);

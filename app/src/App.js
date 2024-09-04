@@ -14,7 +14,7 @@ function App() {
   const [introDisplay, setIntroDisplay] = useState('none');
   const [openAI, setOpenAI] = useState(null);
   const [noOpenAI, setNoOpenAI] = useState(false);  
-  const GLOBAL_WIDTH = useRef(640);
+  const GLOBAL_WIDTH = useRef(600);
 
   // Set up our custom gesture events
   const subscribe = (eventName, listener) => {
@@ -55,7 +55,6 @@ function App() {
   return (
     <GlobalContext.Provider value={{GLOBAL_WIDTH}}>
       
-    
       { (userAgent.indexOf("Chrome") > -1) ? 
       <div className="App">
         {/*<GestureCapturer 
@@ -64,20 +63,24 @@ function App() {
           introDisplay={introDisplay}
           setIntroDisplay={setIntroDisplay}
         />*/}
-        <div className="header" style={{position:"fixed", top:0, left:0,}}>
+        <div className="header" style={{
+          position:"fixed", top:0, left:0, 
+          background:"#333", 
+          color:"#fff",
+          }}>
           <div style={{display:"flex", flexDirection:"row", alignItems:"center", width:"200px", background:"none"}}>
-            <i className="material-icons-outlined" style={{fontSize:"20px", color: "#666"}}>keyboard_arrow_left</i>
-            <div className="header-06">Projects</div>
+            <i className="material-icons-outlined" style={{fontSize:"20px", color: "#ccc"}}>keyboard_arrow_left</i>
+            <div className="header-06" style={{color:"#ccc"}}>Projects</div>
           </div>
           
           <div style={{flex:1}}></div>
           <div className="title">
             <div style={{width:"40px",}}></div>
-            <div className="header-06">
-              Wikipedia Browser
+            <div className="header-06" style={{color:"#ccc"}}>
+              Wikipedia Explorer
             </div>
             <div style={{paddingTop:"4px", marginLeft:"12px",}}>
-              <i className="material-icons-outlined" style={{fontSize:"24px", color: "#666"}}>search</i>
+              <i className="material-icons-outlined" style={{fontSize:"24px", color: "#ccc"}}>search</i>
             </div>
           </div>
           <div style={{flex:1}}></div>
@@ -85,8 +88,8 @@ function App() {
             <div 
             className="header-06" 
             onClick={() => { setIntroDisplay(introDisplay == 'none' ? 'flex' : 'none') }}
-            style={{cursor:"pointer", background:""}}>
-              <i className="material-icons-outlined" style={{fontSize:"24px",  color: "#666"}}>info</i>
+            style={{cursor:"pointer", background:"", paddingTop:"2px"}}>
+              <i className="material-icons-outlined" style={{fontSize:"24px",  color:"#aaa"}}>info</i>
             </div>
           </div>
         </div>
@@ -102,6 +105,18 @@ function App() {
           setIntroDisplay={setIntroDisplay}
           introDisplay={introDisplay}
         />
+
+        <div style={{
+          position:"absolute", 
+          top:"0px", left:"0px", 
+          width:"1500px", 
+          height: `${1500*9/16}px`,
+          borderRight:"3px solid red",
+          borderBottom:"3px solid red",
+          background:"none",
+          pointerEvents: "none",
+          display:"none",
+        }}/>
 
         {false ? <OpenAITests 
           openAI={openAI}

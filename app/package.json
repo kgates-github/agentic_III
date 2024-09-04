@@ -26,7 +26,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "homepage": "https://kgates-github.github.io/wikipedia_browser_I",
+  "homepage": "https://kgates-github.github.io/wikipedia_explorer_I",
   "eslintConfig": {
     "extends": [
       "react-app",

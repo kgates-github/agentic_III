@@ -1,10 +1,12 @@
+
 class WikipediaNavigator {
   constructor(
     setWikiPages, scroll_x, scrollXControls, 
     setCurIndex, GLOBAL_WIDTH, 
     setPageQueueLength, openAI,
     setWikiPageSummary, setWikiPageDescription,
-    setWikiPageTitle, setWikiPageTableOfContents) {
+    setWikiPageTitle, setWikiPageTableOfContents,
+    subjectAreas) {
     
     this.pageQueue = [];
     this.queueIndex = 0;
@@ -21,6 +23,7 @@ class WikipediaNavigator {
     this.setWikiPageDescription = setWikiPageDescription;
     this.setWikiPageTitle = setWikiPageTitle;
     this.setWikiPageTableOfContents = setWikiPageTableOfContents;
+    this.subjectAreas = subjectAreas;
   }
 
   addPageToQueue = async(wikiPage, moveForward = true) => {
@@ -77,7 +80,7 @@ class WikipediaNavigator {
         resolve(this.getSuggestions(wikiPage));
       }).then((suggestions) => { 
         newPage.suggestions = suggestions;
-        console.log('Suggestions are ready:', suggestions);
+        this.updateHistory(newPage);
 
         // If we have suggestions and we are moving forward, 
         if (suggestions.length && moveForward) {
@@ -97,14 +100,7 @@ class WikipediaNavigator {
       this.setCurIndex(this.queueIndex) 
     }  
 
-    this.history.push({ 
-      nodeId: newPage.id, 
-      parentId: this.pageQueue.length === 1 ? null : this.pageQueue[this.queueIndex].id, 
-      linkPosition: 50, 
-      name: newPage.title,
-      wordCount: 100, // Placeholder until we load content
-    });
-    
+    if (moveForward) this.addToHistory(newPage);
     this.setPageQueueLength(this.pageQueue.length);
     this.setWikiPages(this.pageQueue);
     if (moveForward) this.moveForward(false);
@@ -112,11 +108,12 @@ class WikipediaNavigator {
 
   updateHistory(wikiPage) {
     // Find the history object with the matching ID
-    const historyWikiPage = this.history.find(item => item.nodeId === wikiPage.id);
-    if (historyWikiPage) {
-      historyWikiPage.wordCount = wikiPage.wordCount; 
-      historyWikiPage.title = wikiPage.title;
-    }
+    const pagesToUpdate = this.history.filter(page => page.id === wikiPage.id);
+    
+    // Update suggestions for all matched pages
+    pagesToUpdate.forEach(page => {
+      page.suggestions = wikiPage.suggestions;
+    });
   }
 
   setDoRender(renderNextPage = true) {
@@ -132,8 +129,16 @@ class WikipediaNavigator {
   }
 
   setNextPage(curPage) {
-    
-    for (const suggestion of curPage.suggestions) {
+    function scrambleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+      }
+      return array;
+    }
+
+    const candidates = scrambleArray(curPage.suggestions.slice());
+    for (const suggestion of candidates) {
       const newWikiPage = suggestion.wikiPage.split('/').pop();
       const isInQueue = this.pageQueue.some(page => newWikiPage === page.wikiPage);
 
@@ -145,10 +150,24 @@ class WikipediaNavigator {
     this.addPageToQueue('Dymaxion', false);
   }
 
+  addToHistory(curPage) {
+    this.history.push({ 
+      id: curPage.id,
+      parentId: (this.queueIndex > 0) ? this.pageQueue[this.queueIndex - 1].id : 'root',
+      datetime: new Date().toLocaleString(),
+      title: curPage.title,
+      summary: curPage.summary,
+      suggestions: curPage.suggestions,
+    });
+  }
+
   moveForward(renderNextPage = true) {
     if (this.queueIndex === this.pageQueue.length - 1) return;
     this.queueIndex++;
     const curPage = this.pageQueue[this.queueIndex];
+
+    this.addToHistory(curPage);
+
     this.setWikiPageSummary(curPage.summary)
     this.setWikiPageDescription(curPage.description)
     this.setWikiPageTitle(curPage.title)
@@ -158,14 +177,13 @@ class WikipediaNavigator {
     if (this.openAI) {
       if (curPage && curPage.suggestions && curPage.suggestions.length && this.pageQueue[this.queueIndex+1] === undefined) { 
         this.setNextPage(curPage);
-      } else {
+      } else if (curPage && (!curPage.suggestions || !curPage.suggestions.length) && this.pageQueue[this.queueIndex+1] === undefined) {
         let tries = 0;
         let intervalRef;
 
         intervalRef = setInterval(() => {
           tries++;
-          console.log('Trying to get suggestions for next page. Tries:', tries);
-          
+          //console.log('Trying to get suggestions for next page. Tries:', tries);
           if (curPage && curPage.suggestions && curPage.suggestions.length && this.pageQueue[this.queueIndex+1] === undefined) { 
             this.setNextPage(curPage);
             clearInterval(intervalRef);
@@ -231,7 +249,6 @@ class WikipediaNavigator {
 
   handleLinkClick(href) {
     const wikiPage = href.split('/').pop();
-    console.log('handleLinkClick', wikiPage);
     this.addPageToQueue(wikiPage);
   }
 
@@ -256,10 +273,25 @@ class WikipediaNavigator {
       );
 
       const data = await response.json();
-      console.log('fetchTableOfContents', data.parse.sections);
       return data.parse.sections;
     } catch (error) {
       console.log('fetchWikiSummary error: ', error.message);
+    }
+  }
+
+  testWikiLink = async(wikiPage) => {
+    try {
+      const response = await fetch(
+        `https://en.wikipedia.org/api/rest_v1/page/summary/${wikiPage}`
+      );
+      const data = await response.json();
+
+      if (data.title.includes("Not found")) {
+        return false;
+      }
+      return true;
+    } catch (error) {
+      return false;
     }
   }
 
@@ -268,6 +300,8 @@ class WikipediaNavigator {
 
     if (this.openAI) {
       try {
+        const subjectAreas = Object.keys(this.subjectAreas).join(', ');
+
         const completion = await this.openAI.chat.completions.create({
           messages: [
             {
@@ -277,13 +311,18 @@ class WikipediaNavigator {
             {
               "role": "user",
               "content": `First, read the following excerpt:\n\n${newWikiSummary.summary}\n\n
-                After that, create a JSON-formatted list of up to 5 valid links to Wikipedia pages that would be good follow-ups to the excerpt. 
-                - For each Wikipedia page, write a short 25-word summary.\n\n 
+                After that, create a JSON-formatted list of up to 4 valid links to Wikipedia pages that would be good follow-ups to the excerpt. 
+                - For each Wikipedia page, write a short 25-word summary and why it is relevant.\n\n 
+                - For each Wikipedia page, find what subject area it best fits into using this list: ${subjectAreas}.\n\n
                 - Do not include the current page in the list of suggestions.\n\n
-                - Make sure JSON is formatted correctly. Example: \n\n
+                - MAKE SURE EACH LINK IS VALID. Example: "https://en.wikipedia.org/wiki/Artificial_intelligence" is valid. "Artificial_intelligence" is not.\n\n
+                - DO NOT INCLUDE lists such as List_of_films_produced_by_Universal_Pictures or categories such as Category:American_films.\n\n
+                - DO NOT INCLUDE disambiguation pages such as "Artificial_intelligence_(disambiguation)".\n\n
+                - DO NOT INCLUDE redirect pages. Only include actual wikipedia pages.\n\n
+                - Make sure JSON is formatted correctly. Example:\n\n
                 JSON format: [
-                  {"title": "title1", "wikiPage": "wiki_page_1", "summary": "summary1", "topics": ["topic1", "topic2", "topic3"]}, 
-                  {"title": "title2", "wikiPage": "wiki_page_2", "summary": "summary2", "topics": ["topic1", "topic2", "topic3"]},
+                  {"title": "title1", "wikiPage": "wiki_page_1", "summary": "summary1", subjectArea: "subject area"}, 
+                  {"title": "title2", "wikiPage": "wiki_page_2", "summary": "summary2", subjectArea: "subject area"},
                   ...
                 ]
                 JSON Output:`
@@ -296,10 +335,18 @@ class WikipediaNavigator {
         const sanitizedMessage = message.replace(/```json|```/g, '').trim();
         const formattedJSON = JSON.parse(sanitizedMessage);
 
-        console.log('-----------------------------------------------');
-        console.log('formattedJSON:', formattedJSON);
-        console.log('-----------------------------------------------');
-        return formattedJSON;
+        const suggestions = [];
+
+        for (const suggestion of formattedJSON) {
+          let testLink = suggestion.wikiPage.split('/').pop();
+          if (await this.testWikiLink(testLink)) {
+            suggestions.push(suggestion);
+          } else {
+            console.log('Invalid link:', testLink);
+          }
+        }
+        
+        return suggestions;
       } catch (error) {
         console.log("Error parsing JSON: ", error.message);
         return {error: error.message};  
